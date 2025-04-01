@@ -1,0 +1,116 @@
+﻿@page "/claims"
+@inject NavigationManager NavigationManager
+@using System.Security.Claims
+@using MongoAuth.Services
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+    <MudPaper Elevation="3" Class="pa-5" 
+        Style="border-radius: 8px; background: linear-gradient(to bottom, #afeeee, #e0ffff); color: #007a99;">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudText Typo="Typo.h4" Class="mb-3"
+                    Style="border-left: 4px solid #ffd700; padding-left: 8px;">
+                    User Claims Information
+                </MudText>
+            </MudItem>
+
+            @if (!string.IsNullOrEmpty(authMessage))
+            {
+                <MudItem xs="12" Class="mb-3">
+                    <MudAlert Severity="MudBlazor.Severity.Info" Style="color: #007a99; background-color: #e0ffff;">
+                        @authMessage
+                    </MudAlert>
+                </MudItem>
+            }
+
+            @if (claims.Any())
+            {
+                <MudItem xs="12">
+                    <MudCard Class="mb-3" Style="border: 2px solid #ffd700; border-radius: 8px;">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="mb-2" 
+                                Style="color: #007a99; border-left: 4px solid #ffd700; padding-left: 8px;">
+                                Claims List
+                            </MudText>
+                            <MudList T="string" Dense="true">
+                                @foreach (var claim in claims)
+                                {
+                                    <MudListItem>
+                                        <MudText Typo="Typo.body1">
+                                            <strong>@claim.Type:</strong> @claim.Value
+                                        </MudText>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+
+                    <MudCard Class="mb-3" Style="border: 2px solid #ffd700; border-radius: 8px;">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="mb-2" 
+                                Style="color: #007a99; border-left: 4px solid #ffd700; padding-left: 8px;">
+                                User Details
+                            </MudText>
+                            <MudText Typo="Typo.body1"><strong>Name:</strong> @uname</MudText>
+                            <MudText Typo="Typo.body1"><strong>Email:</strong> @email</MudText>
+                            <MudText Typo="Typo.body1"><strong>Role:</strong> @role</MudText>
+                            @if (!string.IsNullOrEmpty(surname))
+                            {
+                                <MudText Typo="Typo.body1"><strong>Surname:</strong> @surname</MudText>
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                <MudItem xs="12" Class="mt-4">
+                    <MudBox Style="display: flex; justify-content: center;">
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary"
+                            Style="border: 2px solid #007a99; color: #007a99;"
+                            OnClick="@(() => NavigationManager.NavigateTo("/"))">
+                            Back to Home
+                        </MudButton>
+                    </MudBox>
+                </MudItem>
+            }
+            else
+            {
+                <MudItem xs="12">
+                    <MudAlert Severity="MudBlazor.Severity.Warning" 
+                        Style="color: #007a99; background-color: #fff3cd;">
+                        No claims found for the authenticated user.
+                    </MudAlert>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private string? authMessage;
+    private string? surname;
+    private IEnumerable<Claim> claims = Enumerable.Empty<Claim>();
+    private string? uname;
+    private string? email;
+    private string? role;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            authMessage = $"{user.Identity.Name} is authenticated.";
+            claims = user.Claims;
+            surname = user.FindFirst(ClaimTypes.Surname)?.Value;
+            uname = user.FindFirst(ClaimTypes.Name)?.Value;
+            email = user.FindFirst(ClaimTypes.Email)?.Value;
+            role = user.FindFirst(ClaimTypes.Role)?.Value;
+        }
+        else
+        {
+            authMessage = "The user is NOT authenticated.";
+        }
+    }
+}

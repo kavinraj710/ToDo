@@ -1,0 +1,385 @@
+﻿@page "/todo"
+@rendermode InteractiveServer
+@attribute [CustomAuthorize("user")]
+@using MongoAuth.Shared.Models
+@inject NavigationManager Navigation
+@inject MongoDBServices MongoService
+@using MudBlazor
+@inject ISnackbar Snackbar
+<MudThemeProvider />
+<MudSnackbarProvider MaxSnack="3" Position="SnackbarPosition.BottomRight" />
+
+<PageTitle>To-Do</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="todo-container">
+    <MudCard Class="todo-card">
+        <MudCardContent>
+
+            <MudText Typo="Typo.h3" Class="text-primary todo-title">📌 My To-Do List</MudText>
+            <MudText Class="mt-2 text-secondary">Plan and manage your daily tasks efficiently.</MudText>
+
+            <!-- Calendar Date Picker -->
+            <MudGrid Class="mt-3">
+                <MudItem xs="6">
+                    <MudDatePicker Label="Filter by Date" @bind-Date="SelectedDate" Immediate="true" />
+                </MudItem>
+                <MudItem xs="6" Class="text-right">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ClearDateFilter">Clear Filter</MudButton>
+                </MudItem>
+            </MudGrid>
+
+            <!-- Input Field & Add Button -->
+            <MudGrid Class="mt-4" Justify="Justify.Center" AlignItems="Center">
+                <MudItem xs="6">
+                    <MudTextField Label="Add a new task..." Variant="Variant.Outlined"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.AddTask"
+                                  @bind-Value="UserInput" Immediate="true" Class="task-input" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudDatePicker Label="Set Deadline" @bind-Date="TaskDeadline" Immediate="true" />
+                </MudItem>
+                <MudItem xs="3">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@ButtonDisabled"
+                               OnClick="AddTask" Class="add-task-button">
+                        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-1" /> Add
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+
+
+            <MudDivider Class="mt-4 mb-4" />
+
+            <!-- Pending Tasks Section -->
+            <MudText Typo="Typo.h5" Color="Color.Warning" Class="mt-4">⏳ Pending Tasks: @FilteredPendingToDos.Count</MudText>
+
+            @if (FilteredPendingToDos.Count == 0)
+            {
+                <MudAlert Severity="Severity.Info" Class="mt-3">No pending tasks. Enjoy your day! 🎉</MudAlert>
+            }
+            else
+            {
+                <MudList T="ToDo" Dense Class="task-list">
+                    @foreach (var ToDo in FilteredPendingToDos)
+                    {
+                        <MudListItem T="ToDo" Class="task-item">
+                            <MudGrid AlignItems="Center">
+                                <MudItem xs="8">
+                                    <MudText Typo="Typo.body1">@ToDo.Title</MudText>
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                        📅 Created: @ToDo.TaskAddedDate?.ToString("MMM dd, yyyy hh:mm tt")
+                                    </MudText>
+                                    @if (ToDo.Deadline.HasValue)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Error">
+                                            ⏳ Deadline: @ToDo.Deadline?.ToString("MMM dd, yyyy hh:mm tt")
+                                        </MudText>
+                                    }
+                                </MudItem>
+                                <MudItem xs="2" Class="text-center">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Done" Color="Color.Success" OnClick="(() => TaskDone(ToDo))" />
+                                </MudItem>
+                                <MudItem xs="2" Class="text-center">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => TaskClose(ToDo))" />
+                                </MudItem>
+                            </MudGrid>
+                        </MudListItem>
+                    }
+                </MudList>
+            }
+
+            <MudDivider Class="mt-4 mb-4" />
+
+            <!-- Completed Tasks Section -->
+            <MudText Typo="Typo.h5" Color="Color.Success" Class="mt-4">✅ Completed Tasks: @FilteredCompletedToDos.Count</MudText>
+
+            @if (FilteredCompletedToDos.Count == 0)
+            {
+                <MudAlert Severity="Severity.Warning" Class="mt-3">No completed tasks yet. Keep pushing forward! 🚀</MudAlert>
+            }
+            else
+            {
+                <MudList T="ToDo" Dense Class="completed-task-list">
+                    @foreach (var ToDo in FilteredCompletedToDos)
+                    {
+                        <MudListItem T="ToDo" Class="task-item completed">
+                            <MudGrid AlignItems="Center">
+                                <MudItem xs="8">
+                                    <MudText Typo="Typo.body1">@ToDo.Title</MudText>
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">📅 @ToDo.TaskAddedDate?.ToString("MMM dd, yyyy")</MudText>
+                                </MudItem>
+                                <MudItem xs="2" Class="text-center">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => TaskClose(ToDo))" />
+                                </MudItem>
+                            </MudGrid>
+                        </MudListItem>
+                    }
+                </MudList>
+            }
+            <MudDivider Class="mt-4 mb-4" />
+
+            <!-- MongoDB Chart Section -->
+            <MudPaper Class="mt-5 p-4" Elevation="3">
+                <MudText Typo="Typo.h5" Color="Color.Primary">📊 Task Analysis</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    View insights about your tasks, including completion rates and deadlines.
+                </MudText>
+
+                <div style="display: flex; justify-content: center; align-items: center; height: 500px; margin-top: 10px;">
+                    <iframe id="taskChart" style="background: #F1F5F4; border: none; border-radius: 6px;
+       box-shadow: 0 2px 10px 0 rgba(70, 76, 79, .2);
+       width: 100%; height: 100%;"
+                            src="@MongoChartUrl">
+                    </iframe>
+
+                </div>
+            </MudPaper>
+
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+<style>
+    /* Global Styles */
+    .todo-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .todo-card {
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Titles & Text */
+    .todo-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007a99; /* Dark Cyan */
+    }
+
+    .text-primary {
+        color: #007a99;
+    }
+
+    .text-secondary {
+        color: #6c757d;
+    }
+
+    /* Input Fields */
+    .task-input {
+        width: 100%;
+        border-radius: 6px;
+        border: 1px solid #007a99;
+        padding: 10px;
+    }
+
+    .add-task-button {
+        background-color: #afeeee; /* Paleturquoise */
+        color: #000;
+        position: center;
+        font-weight: bold;
+        border-radius: 6px;
+        transition: 0.3s;
+    }
+
+        .add-task-button:hover {
+            background-color: #007a99; /* Dark Cyan */
+            color: white;
+        }
+
+    /* Task List */
+    .task-list,
+    .completed-task-list {
+        margin-top: 10px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 10px;
+    }
+
+    .task-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+        padding: 10px;
+        margin-bottom: 5px;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+        .task-item.completed {
+            background: #afeeee; /* Paleturquoise */
+        }
+
+        .task-item .text-center {
+            display: flex;
+            justify-content: center;
+        }
+
+    /* Buttons */
+    .mud-icon-button {
+        border-radius: 50%;
+        transition: 0.3s;
+    }
+
+        .mud-icon-button:hover {
+            transform: scale(1.1);
+        }
+
+    /* Alerts */
+    .mud-alert {
+        text-align: center;
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+        .mud-alert.severity-info {
+            background: #e3f2fd;
+            color: #007a99;
+        }
+
+        .mud-alert.severity-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+    /* Task Analysis Section */
+    .mud-paper {
+        background: #f1f5f4;
+        border-radius: 6px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 2px 10px rgba(70, 76, 79, 0.2);
+    }
+
+    #taskChart {
+        background: #F1F5F4;
+        border: none;
+        border-radius: 6px;
+        box-shadow: 0 2px 10px rgba(70, 76, 79, 0.2);
+        width: 100%;
+        height: 500px;
+        margin-top: 10px;
+    }
+
+    /* Divider */
+    .mud-divider {
+        background: #007a99;
+        height: 2px;
+        border-radius: 4px;
+        margin: 20px 0;
+    }
+</style>
+@code
+{
+    public string UserInput { get; set; }
+    private DateTime? SelectedDate { get; set; } = DateTime.Today; // Default to today
+
+
+    private List<ToDo> PendingToDos = new List<ToDo>();
+    private List<ToDo> CompletedToDos = new List<ToDo>();
+
+    public bool ButtonDisabled => string.IsNullOrEmpty(UserInput);
+    private string MongoChartUrl => GenerateChartUrl();
+
+    private string GenerateChartUrl()
+    {
+        return $"https://charts.mongodb.com/charts-weather-bolpypx/embed/charts?id=e7d2dedf-fd0e-4361-9977-7c37f3b3ec5c&maxDataAge=10&theme=light&autoRefresh=true";
+    }
+
+    private async Task AddTask()
+    {
+        DateTime TaskAddedDate = DateTime.Now;
+        try
+        {
+            ToDo task = new ToDo()
+                {
+                    Title = UserInput,
+                    TaskAddedDate = TaskAddedDate,
+                    Deadline = TaskDeadline,
+                    Status = "Pending"
+                };
+
+            await MongoService.CreateToDo(task);
+            await LoadToDos();
+            UserInput = string.Empty;
+            TaskDeadline = null;
+
+            // Force iframe refresh
+            StateHasChanged();
+            Snackbar.Add("✅ Task added successfully!", Severity.Success);
+            Snackbar.Add("Graph will Update in a minute", Severity.Info);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            Snackbar.Add("❌ Failed to add task: " + e.Message, Severity.Error);
+        }
+    }
+
+    private async Task TaskDone(ToDo task)
+    {
+        task.Status = "Completed";
+        await MongoService.CompleteToDo(task);
+        await LoadToDos();
+
+        // Force iframe refresh
+        StateHasChanged();
+        Snackbar.Add("🎉 Task marked as completed!", Severity.Success);
+    }
+
+    private async Task TaskClose(ToDo task)
+    {
+        await MongoService.RemoveToDo(task);
+        await LoadToDos();
+
+        // Force iframe refresh
+        StateHasChanged();
+        Snackbar.Add("🗑️ Task deleted successfully!", Severity.Warning);
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadToDos();
+    }
+
+    private async Task LoadToDos()
+    {
+        try
+        {
+            PendingToDos = await MongoService.ReadPending();
+            CompletedToDos = await MongoService.ReadCompleted();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            PendingToDos = new List<ToDo>();
+            CompletedToDos = new List<ToDo>();
+        }
+    }
+
+    private List<ToDo> FilteredPendingToDos => FilterByDate(PendingToDos);
+    private List<ToDo> FilteredCompletedToDos => FilterByDate(CompletedToDos);
+    private DateTime? TaskDeadline { get; set; } // New Deadline input
+
+
+
+    private List<ToDo> FilterByDate(List<ToDo> tasks)
+    {
+        // Default to today's date if no date is selected
+        DateTime filterDate = SelectedDate ?? DateTime.Today;
+        return tasks.Where(t => t.TaskAddedDate?.Date == filterDate.Date).ToList();
+    }
+
+    private void ClearDateFilter()
+    {
+        SelectedDate = DateTime.Today; // Reset to today's date
+    }
+
+
+}
+
+}

@@ -1,0 +1,181 @@
+﻿@page "/register"
+@rendermode InteractiveServer
+@using MongoAuth.Services
+@inject MongoDBServices MongoService
+@inject NavigationManager NavigationManager
+
+<AuthorizeView>
+    <Authorized>
+        @{
+            NavigationManager.NavigateTo("/");
+        }
+    </Authorized>
+    <NotAuthorized>
+        <div class="register-container">
+            <div class="register-card">
+                <h2 class="register-title">Register</h2>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" @bind="username" required placeholder="Enter your username" />
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" @bind="email" required placeholder="Enter your email" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" @bind="password" required placeholder="Enter your password" />
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" @bind="confirmPassword" required placeholder="Confirm your password" />
+                </div>
+                <div class="register-actions">
+                    <button class="secondary-btn" @onclick="NavigateToLogin">Back to Login</button>
+                    <button class="primary-btn" @onclick="HandleRegister">Register</button>
+                </div>
+            </div>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+<style>
+    /* Background container */
+    .register-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    
+        background-size: cover;
+    }
+
+    /* Register card */
+    .register-card {
+        background: rgba(0, 122, 153, 0.9); /* Secondary color with transparency */
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        width: 360px;
+        text-align: center;
+        transition: 0.3s ease-in-out;
+    }
+
+    /* Title */
+    .register-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #ffd700; /* Tertiary Golden Yellow */
+    }
+
+    /* Form group */
+    .form-group {
+        text-align: left;
+        margin-bottom: 15px;
+    }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #afeeee; /* Primary color */
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: 0.3s;
+        }
+
+            .form-group input:focus {
+                border-color: #ffd700;
+                outline: none;
+            }
+
+    /* Buttons */
+    .register-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .primary-btn, .secondary-btn {
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        transition: 0.3s;
+    }
+
+    .primary-btn {
+        background: #afeeee; /* Primary color */
+        color: #007a99;
+        font-weight: bold;
+    }
+
+        .primary-btn:hover {
+            background: #97d5d5;
+        }
+
+    .secondary-btn {
+        background: #007a99; /* Secondary color */
+        color: white;
+    }
+
+        .secondary-btn:hover {
+            background: #005f7a;
+        }
+</style>
+
+@code {
+    private string username = string.Empty;
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string confirmPassword = string.Empty;
+
+    private async Task HandleRegister()
+    {
+        if (password != confirmPassword)
+        {
+            Console.WriteLine("Passwords do not match!");
+            return;
+        }
+
+        var existingUser = await MongoService.GetUserByEmail(email);
+        if (existingUser != null)
+        {
+            Console.WriteLine("Email already exists!");
+            return;
+        }
+
+        try
+        {
+            var newUser = new User
+                {
+                    Username = username,
+                    Email = email,
+                    Password = password
+                };
+
+            await MongoService.RegisterUser(newUser);
+            Console.WriteLine("Registration successful!");
+            NavigationManager.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Registration failed: {ex.Message}");
+        }
+    }
+
+    private void NavigateToLogin()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+}

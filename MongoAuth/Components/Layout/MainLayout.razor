@@ -1,0 +1,98 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserContext UserContext
+@inject MongoDBServices _mongoDbService
+
+<CascadingAuthenticationState>
+    <MudThemeProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+    <MudPopoverProvider />
+
+    <MudLayout>
+        <!-- Top Navbar -->
+        <MudAppBar Elevation="1" Style="background-color: #007a99; color: white;">
+            <MudText @onclick="NavTo" Typo="Typo.h5" Class="ml-3"
+                     Style="display: flex; align-items: center; cursor: pointer;">
+                <MudIcon Class="mr-2" Icon="@Icons.Custom.Brands.MudBlazor" />
+                <span style="font-weight: bold;">My Bucket List</span>
+            </MudText>
+
+            <MudSpacer />
+
+            <!-- Home Button -->
+            <MudIconButton Icon="@Icons.Material.Sharp.Home" Color="Color.Warning"
+                           OnClick="NavTo" Class="mr-3" />
+
+            <AuthorizeView>
+                <Authorized>
+                    <!-- User Profile Menu -->
+                    <MudMenu Icon="@Icons.Material.Rounded.AccountCircle" Color="Color.Info" Size="Size.Large" Class="mr-3">
+                        <MudMenuItem>
+                            <strong>Name:</strong> @(AuthUser?.Username ?? "Guest")
+                        </MudMenuItem>
+                        <MudMenuItem>
+                            <strong>Email:</strong> @(AuthUser?.Email ?? "Unknown")
+                        </MudMenuItem>
+                        <MudMenuItem>
+                            <strong>Role:</strong> @(AuthUser?.Role ?? "N/A")
+                        </MudMenuItem>
+                        <LogoutText />
+                    </MudMenu>
+                </Authorized>
+                <NotAuthorized>
+                    <MudButton Variant="Variant.Filled" Class="ml-3 mr-3"
+                               OnClick="NavToLogin" Color="Color.Tertiary">
+                        Login
+                    </MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
+        </MudAppBar>
+
+ 
+
+        <MudMainContent>
+            @Body
+        </MudMainContent>
+    </MudLayout>
+
+    <!-- Error UI for debugging -->
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+</CascadingAuthenticationState>
+
+@code {
+    private User? AuthUser { get; set; }
+    private string? email { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            email = user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                try
+                {
+                    AuthUser = await _mongoDbService.GetUserByEmail(email);
+                    System.Diagnostics.Debug.WriteLine($"AuthUser Loaded: {AuthUser?.Username}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error fetching user: {ex.Message}");
+                }
+            }
+        }
+    }
+
+    private void NavTo() => NavigationManager.NavigateTo("/");
+    private void NavToLogin() => NavigationManager.NavigateTo("/login");
+}

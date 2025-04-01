@@ -1,0 +1,147 @@
+﻿@page "/stack"
+@inject NavigationManager NavigationManager
+@using MudBlazor
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+    <MudPaper Elevation="5" Class="pa-5 stack-container">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudText Typo="Typo.h4" Class="mb-3 stack-title">
+                    Technology Stack
+                </MudText>
+                <MudText Typo="Typo.body1">
+                    Our application is built using a modern technology stack to ensure performance, scalability, and security.
+                </MudText>
+            </MudItem>
+
+            <MudItem xs="12" Class="mt-3">
+                <MudDivider Class="stack-divider" />
+            </MudItem>
+
+            <MudItem xs="12" Class="mt-4">
+                <MudText Typo="Typo.h5" Class="mb-2 stack-section-title">
+                    Frontend Technologies
+                </MudText>
+                <MudList T="string" Dense="true">
+                    <MudListItem Class="stack-item">
+                        <MudIcon Icon="@Icons.Material.Filled.Web" Class="stack-icon" />
+                        <MudText Typo="Typo.body1">Blazor WebAssembly</MudText>
+                    </MudListItem>
+                    <MudListItem Class="stack-item">
+                        <MudIcon Icon="@Icons.Material.Filled.ColorLens" Class="stack-icon" />
+                        <MudText Typo="Typo.body1">MudBlazor UI Framework</MudText>
+                    </MudListItem>
+                </MudList>
+            </MudItem>
+
+            <MudItem xs="12" Class="mt-3">
+                <MudDivider Class="stack-divider" />
+            </MudItem>
+
+            <MudItem xs="12" Class="mt-4">
+                <MudText Typo="Typo.h5" Class="mb-2 stack-section-title">
+                    Backend Technologies
+                </MudText>
+                <MudList T="string" Dense="true">
+                    <MudListItem Class="stack-item">
+                        <MudIcon Icon="@Icons.Material.Filled.Api" Class="stack-icon" />
+                        <MudText Typo="Typo.body1">ASP.NET Core Web API</MudText>
+                    </MudListItem>
+                    <MudListItem Class="stack-item">
+                        <MudIcon Icon="@Icons.Material.Filled.Storage" Class="stack-icon" />
+                        <MudText Typo="Typo.body1">MongoDB</MudText>
+                    </MudListItem>
+                </MudList>
+            </MudItem>
+
+            <MudItem xs="12" Class="mt-3">
+                <MudDivider Class="stack-divider" />
+            </MudItem>
+
+            <MudItem xs="12" Class="mt-4">
+                <MudText Typo="Typo.h5" Class="mb-2 stack-section-title">
+                    Cloud & DevOps
+                </MudText>
+                <MudList T="string" Dense="true">
+                    <MudListItem Class="stack-item">
+                        <MudIcon Icon="@Icons.Material.Filled.Cloud" Class="stack-icon" />
+                        <MudText Typo="Typo.body1">Azure Cloud & Render</MudText>
+                    </MudListItem>
+                    <MudListItem Class="stack-item">
+                        <MudIcon Icon="@Icons.Material.Filled.DeveloperBoard" Class="stack-icon" />
+                        <MudText Typo="Typo.body1">Docker & Kubernetes</MudText>
+                    </MudListItem>
+                </MudList>
+            </MudItem>
+
+            <MudItem xs="12" Class="mt-3">
+                <MudDivider Class="stack-divider" />
+            </MudItem>
+
+            <MudItem xs="12" Class="mt-4 text-center">
+                <MudButton Variant="Variant.Filled" Class="stack-button"
+                           OnClick="@(() => NavigationManager.NavigateTo("/"))">
+                    Back to Home
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+<style>
+    .stack-container {
+        border-radius: 12px;
+        background: linear-gradient(135deg, #afeeee, #00bcd4);
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+    }
+
+    .stack-title {
+        color: #007a99;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .stack-section-title {
+        color: #007a99;
+        font-weight: bold;
+    }
+
+    .stack-icon {
+        color: #FFD700;
+        margin-right: 10px;
+        font-size: 24px;
+    }
+
+    .stack-item {
+        transition: background 0.3s, transform 0.2s;
+        border-radius: 6px;
+        padding: 8px;
+    }
+
+        .stack-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+    .stack-divider {
+        background-color: rgba(255, 255, 255, 0.5);
+        height: 2px;
+        border-radius: 6px;
+    }
+
+    .stack-button {
+        background-color: #007a99;
+        color: white;
+        border-radius: 8px;
+        padding: 12px 24px;
+        display: block;
+        margin: auto;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .stack-button:hover {
+            background-color: #005f73;
+            transform: scale(1.05);
+        }
+</style>

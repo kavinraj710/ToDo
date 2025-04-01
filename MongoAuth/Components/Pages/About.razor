@@ -1,0 +1,70 @@
+﻿@page "/about"
+@using MudBlazor
+@inject NavigationManager NavigationManager
+@inherits LayoutComponentBase
+
+<PageTitle>About</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+    <MudPaper Elevation="2" Class="pa-5" 
+        Style="background: linear-gradient(to bottom, #afeeee, #e0ffff); color: #007a99; border-radius: 8px;">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudText Typo="Typo.h4" Class="mb-3" Color="Color.Secondary" 
+                    Style="border-left: 4px solid #ffd700; padding-left: 8px;">
+                    About This Application
+                </MudText>
+            </MudItem>
+            <MudItem xs="12">
+                <MudText Typo="Typo.body1">
+                    Welcome to our application! This platform is designed to provide users with an interactive and seamless experience.
+                    Our goal is to simplify workflows, enhance productivity, and ensure a user-friendly interface.
+                </MudText>
+            </MudItem>
+            <MudItem xs="12" Class="mt-4">
+                <MudText Typo="Typo.h5" Class="mb-2" Color="Color.Secondary" 
+                    Style="border-left: 4px solid #ffd700; padding-left: 8px;">
+                    Key Features
+                </MudText>
+                <MudList T="string">
+                    <MudListSubheader Style="color: #007a99;">Enhancing User Experience</MudListSubheader>
+                    <MudListItem>
+                        <MudIcon Icon="@Icons.Material.Filled.Speed" Style="color: #ffd700;" Class="mr-2" />
+                        <MudText Typo="Typo.body1">Fast and Responsive Interface</MudText>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudIcon Icon="@Icons.Material.Filled.Security" Style="color: #ffd700;" Class="mr-2" />
+                        <MudText Typo="Typo.body1">Secure Authentication & Authorization</MudText>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudIcon Icon="@Icons.Material.Filled.Cloud" Style="color: #ffd700;" Class="mr-2" />
+                        <MudText Typo="Typo.body1">Cloud Integration for Data Storage</MudText>
+                    </MudListItem>
+                    <MudListItem>
+                        <MudIcon Icon="@Icons.Material.Filled.Analytics" Style="color: #ffd700;" Class="mr-2" />
+                        <MudText Typo="Typo.body1">Real-time Analytics & Insights</MudText>
+                    </MudListItem>
+                </MudList>
+            </MudItem>
+            <MudItem xs="12" Class="mt-4">
+                <MudText Typo="Typo.h5" Class="mb-2" Color="Color.Secondary" 
+                    Style="border-left: 4px solid #ffd700; padding-left: 8px;">
+                    Our Vision
+                </MudText>
+                <MudText Typo="Typo.body1">
+                    We believe in delivering high-quality software that enhances user experience and improves productivity.
+                    Our team is dedicated to continuous improvements and updates based on user feedback.
+                </MudText>
+            </MudItem>
+            <MudItem xs="12" Class="mt-4">
+                <MudBox Style="display: flex; justify-content: center;">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary"
+                        Style="border: 2px solid #007a99; color: #007a99;"
+                        OnClick="@(() => NavigationManager.NavigateTo("/"))">
+                        Back to Home
+                    </MudButton>
+                </MudBox>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>

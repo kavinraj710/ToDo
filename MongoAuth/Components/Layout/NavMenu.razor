@@ -1,0 +1,144 @@
+﻿<!-- Top Navbar -->
+<div class="top-row navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">🌟 My Bucket List</a>
+        <input type="checkbox" id="nav-toggle" class="navbar-toggler" />
+        <label for="nav-toggle" class="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+    </div>
+</div>
+
+<!-- Sidebar Navigation -->
+<div class="nav-scrollable">
+    <nav class="flex-column">
+        <div class="nav-item">
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                <i class="bi bi-house-door-fill"></i> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link" href="claims-principal-data">
+                <i class="bi bi-list-nested"></i> Claims
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link" href="about">
+                <i class="bi bi-info-circle"></i> About
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link" href="stack">
+                <i class="bi bi-stack"></i> Stack
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+<style>
+    /* Navbar */
+    /* Primary Colors */
+    :root {
+        --primary-color: #afeeee;
+        --secondary-color: #007a99;
+        --tertiary-color: #ffd700;
+    }
+
+    /* Navbar */
+    .top-row {
+        background: var(--secondary-color);
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        color: white;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .navbar-brand {
+        font-size: 22px;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+    /* Hamburger Menu */
+    .hamburger-menu {
+        display: none;
+        cursor: pointer;
+    }
+
+        .hamburger-menu span {
+            display: block;
+            width: 30px;
+            height: 4px;
+            margin: 6px;
+            background: white;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+    /* Sidebar Navigation */
+    .nav-scrollable {
+        width: 250px;
+        height: 100vh;
+        background: linear-gradient(to bottom, var(--secondary-color), #495057);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        padding-top: 20px;
+        transition: 0.3s ease-in-out;
+        position: fixed;
+        left: -250px;
+        top: 0;
+    }
+
+    .nav-item {
+        padding: 12px 20px;
+        transition: 0.3s;
+    }
+
+    .nav-link {
+        text-decoration: none;
+        font-size: 18px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 6px;
+        transition: 0.3s ease-in-out;
+    }
+
+        .nav-link:hover {
+            background: var(--tertiary-color);
+            color: black;
+            transform: scale(1.05);
+        }
+
+    /* Show Sidebar on Click */
+    #nav-toggle {
+        display: none;
+    }
+
+        #nav-toggle:checked ~ .nav-scrollable {
+            left: 0;
+        }
+
+    /* Responsive */
+    media (max-width: 768px) {
+        .hamburger-menu
+
+    {
+        display: block;
+    }
+
+    .nav-scrollable {
+        width: 200px;
+    }
+
+    }
+    }</style>

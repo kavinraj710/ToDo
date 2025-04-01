@@ -1,0 +1,155 @@
+﻿@page "/"
+@inherits LayoutComponentBase
+@using MudBlazor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject MongoDBServices mongoDBServices
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<PageTitle>Home</PageTitle>
+
+<MudMainContent Class="mt-0 pt-1" Style="height: 100vh;">
+    <MudContainer Class="mt-3 px-6" MaxWidth="MaxWidth.False" Style="height: 100%;">
+        <MudGrid Spacing="3" Justify="Justify.Center" Align="Align.Stretch" Style="height: 100%;">
+            <!-- About the Project Card -->
+            <MudItem xs="12" sm="6" md="6" lg="3" Style="height: 100%;">
+                <MudCard Class="clickable-item" @onclick="() => NavTo(1)" Style="height: 100%;">
+                    <MudCardHeader>
+                        <MudIcon Icon="@Icons.Material.Filled.QuestionAnswer" Style="color: #FFD700;" />
+                        <MudText Typo="Typo.h6" Class="ml-2">ABOUT THE PROJECT</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudImage Src="images/project.jpg" Alt="About the Project" Height="250" Width="300" />
+                        <MudText>Learn about the core features and objectives of this application. This section provides an overview of what the project offers, its purpose, and how it benefits users. Dive into the vision and functionality that makes this application unique and useful for its audience.</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <!-- Claims Principle Card -->
+            <MudItem xs="12" sm="6" md="6" lg="3" Style="height: 100%;">
+                <MudCard Class="clickable-item" @onclick="() => NavTo(3)" Style="height: 100%;">
+                    <MudCardHeader>
+                        <MudIcon Icon="@Icons.Material.Filled.Security" Style="color: #FFD700;" />
+                        <MudText Typo="Typo.h6" Class="ml-2">CLAIMS PRINCIPLE</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudImage Src="images/princ.jpg" Alt="Claims Principle" Height="250" Width="300" />
+                        <MudText>This section provides insight into the security claims and authentication principles used within the application. View cached user details based on authentication data, ensuring that sensitive information is securely handled and stored. Understand how claims play a crucial role in user identity and access management.</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <!-- To-Do Application Card -->
+            <MudItem xs="12" sm="6" md="6" lg="3" Style="height: 100%;">
+                <MudCard Class="clickable-item" @onclick="() => NavTo(4)" Style="height: 100%;">
+                    <MudCardHeader>
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Style="color: #FFD700;" />
+                        <MudText Typo="Typo.h6" Class="ml-2">TO-DO APPLICATION</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudImage Src="images/todo.jpg" Alt="To-Do Application" Height="250" Width="300" />
+                        <MudText>Manage tasks efficiently with administrative access in this to-do application. This section allows admins to view, add, update, and delete tasks. Stay organized and track your tasks effectively while ensuring proper management and control over user-generated data. Ideal for admin-driven task management.</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <!-- Know the Stacks Used Card -->
+            <MudItem xs="12" sm="6" md="6" lg="3" Style="height: 100%;">
+                <MudCard Class="clickable-item" @onclick="() => NavTo(5)" Style="height: 100%;">
+                    <MudCardHeader>
+                        <MudIcon Icon="@Icons.Material.Filled.StackedBarChart" Style="color: #FFD700;" />
+                        <MudText Typo="Typo.h6" Class="ml-2">KNOW THE STACKS USED</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudImage Src="images/stack.jpg" Alt="Stack Used" Height="250" Width="300" />
+                        <MudText>
+                            Discover the technologies and frameworks behind this project. Learn about the programming languages, libraries, and tools used in both front-end and back-end development. Explore the tech stack powering the application and understand how each component contributes to its performance, security, and user experience.
+
+
+
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+</MudMainContent>
+
+<style>
+    .clickable-item {
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 2px solid #007a99;
+        border-radius: 10px;
+    }
+
+        .clickable-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 4px 15px rgba(255, 215, 0, 0.5); /* Golden glow */
+        }
+
+    .mud-card-content img {
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .mud-card-header {
+        background-color: #007a99 !important; /* Dark Cyan */
+        color: white !important;
+    }
+
+    .mud-card-content {
+        background-color: #afeeee !important; /* Paleturquoise */
+    }
+
+        .mud-card-content p {
+            color: #282c34; /* Ensuring dark readable text */
+        }
+
+    .mud-button {
+        background-color: #007a99 !important;
+        color: white !important;
+    }
+
+        .mud-button:hover {
+            background-color: #ffd700 !important;
+            color: #282c34 !important;
+        }
+</style>
+
+@code {
+    private User? authuser { get; set; }
+    private string? userId;
+    private string? uname;
+    private string? email;
+    private string? role;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            uname = user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value ?? "Unknown";
+            email = user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value ?? "No Email";
+            role = user.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value ?? "No Role";
+
+            authuser = await mongoDBServices.GetUserByEmail(email);
+            userId = authuser?.Id ?? "Unknown";
+        }
+    }
+
+    public void NavTo(int location)
+    {
+        string path = location switch
+        {
+            1 => "/about",
+            3 => "/claims",
+            4 => "/todo",
+            5 => "/stack",
+            _ => "/"
+        };
+        NavigationManager.NavigateTo(path);
+    }
+}
