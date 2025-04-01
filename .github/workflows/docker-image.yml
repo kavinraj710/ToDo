@@ -1,0 +1,31 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.kavin4066 }}
+          password: ${{ secrets.Kavin^4066 }}
+
+      - name: Build Docker Image
+        run: |
+          docker build -t kavin4066/MongoAuth:latest .
+
+      - name: Push Docker Image
+        run: |
+          docker push kavin4066/MongoAuth:latest
