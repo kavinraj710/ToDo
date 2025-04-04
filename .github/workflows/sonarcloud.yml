@@ -1,0 +1,31 @@
+name: SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x' # or 7.x, etc.
+
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Begin SonarCloud Analysis
+        run: |
+          dotnet sonarscanner begin /k:"kavinraj710" /o:"kavinraj710" /d:sonar.token="${{ secrets.73fd7a8e98ab68e98f08afe3f7158a9449d450e4 }}" /d:sonar.host.url="https://sonarcloud.io"
+      - name: Build
+        run: dotnet build --no-incremental
+      - name: End SonarCloud Analysis
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.73fd7a8e98ab68e98f08afe3f7158a9449d450e4}}"
