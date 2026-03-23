@@ -67,7 +67,7 @@ pipeline {
                 --application-name todo-dotnet \
                 --deployment-group-name todo-group \
                 --deployment-config-name CodeDeployDefault.AllAtOnce \
-                --github-location repository=kavinraj710/todo-dotnet,commitId=main
+                --github-location repository=kavinraj710/ToDo,commitId=main
                 '''
             }
         }
