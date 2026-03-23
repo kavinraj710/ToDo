@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "yourdockerhubusername/todo-dotnet:latest"
+        DOCKER_IMAGE = "kavin4066/todo-dotnet:latest"
         DOCKER_USER = credentials('docker-username')
         DOCKER_PASS = credentials('docker-password')
         SONAR_TOKEN = credentials('sonar-token')
