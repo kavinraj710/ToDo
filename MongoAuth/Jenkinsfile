@@ -12,7 +12,7 @@ pipeline {
 
         stage('Clone') {
             steps {
-                git 'https://github.com/kavinraj710/ToDo'
+                git 'https://github.com/kavinraj710/ToDo.git'
             }
         }
 
@@ -33,7 +33,7 @@ pipeline {
                 export PATH="$PATH:/var/jenkins_home/.dotnet/tools"
 
                 dotnet sonarscanner begin \
-                  /k:"secrets.SONAR_TOKEN" \
+                  /k:"kavinraj710_ToDo" \
                   /o:"kavinraj710" \
                   /d:sonar.login=$SONAR_TOKEN
 
@@ -67,7 +67,7 @@ pipeline {
                 --application-name todo-dotnet \
                 --deployment-group-name todo-group \
                 --deployment-config-name CodeDeployDefault.AllAtOnce \
-                --github-location repository=<your-username>/todo-dotnet,commitId=main
+                --github-location repository=kavinraj710/todo-dotnet,commitId=main
                 '''
             }
         }
