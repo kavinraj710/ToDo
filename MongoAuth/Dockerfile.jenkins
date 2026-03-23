@@ -1,0 +1,29 @@
+FROM jenkins/jenkins:lts
+
+USER root
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    docker.io \
+    awscli \
+    wget \
+    unzip
+
+# Install .NET SDK
+RUN wget https://dot.net/v1/dotnet-install.sh
+RUN bash dotnet-install.sh --channel 8.0
+
+# Add .NET to PATH
+ENV PATH="$PATH:/root/.dotnet"
+
+# Give Jenkins Docker access
+RUN usermod -aG docker jenkins
+
+USER jenkins
+
+# Install required plugins
+RUN jenkins-plugin-cli --plugins \
+    git \
+    workflow-aggregator \
+    docker-workflow \
+    sonar
